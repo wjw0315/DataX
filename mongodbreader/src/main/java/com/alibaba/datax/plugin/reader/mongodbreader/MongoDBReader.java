@@ -6,12 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.alibaba.datax.common.element.BoolColumn;
-import com.alibaba.datax.common.element.DateColumn;
-import com.alibaba.datax.common.element.DoubleColumn;
-import com.alibaba.datax.common.element.LongColumn;
-import com.alibaba.datax.common.element.Record;
-import com.alibaba.datax.common.element.StringColumn;
+import com.alibaba.datax.common.element.*;
 import com.alibaba.datax.common.exception.DataXException;
 import com.alibaba.datax.common.plugin.RecordSender;
 import com.alibaba.datax.common.spi.Reader;
@@ -30,6 +25,8 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by jianying.wcj on 2015/3/19 0019.
@@ -37,6 +34,8 @@ import org.bson.types.ObjectId;
  * Modified by mingyan.zc on 2017/7/5.
  */
 public class MongoDBReader extends Reader {
+
+    private static final Logger logger = LoggerFactory.getLogger(MongoDBReader.class);
 
     public static class Job extends Reader.Job {
 
@@ -173,7 +172,11 @@ public class MongoDBReader extends Reader {
                                 String tempArrayStr = Joiner.on(splitter).join(array);
                                 record.addColumn(new StringColumn(tempArrayStr));
                             }
-                        } else {
+                        } else if (tempCol instanceof Document){
+                            String s = ((Document) tempCol).toJson();
+//                            logger.info("Document:{}",s);
+                            record.addColumn(new StringColumn(s));
+                        }else {
                             record.addColumn(new StringColumn(tempCol.toString()));
                         }
                     }
